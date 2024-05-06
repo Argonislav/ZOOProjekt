@@ -1,0 +1,3 @@
+D:/ZOOProjekt/ZOOProjekt/cmake-build-debug/CMakeFiles/ZOOProjekt.dir
+D:/ZOOProjekt/ZOOProjekt/cmake-build-debug/CMakeFiles/edit_cache.dir
+D:/ZOOProjekt/ZOOProjekt/cmake-build-debug/CMakeFiles/rebuild_cache.dir
