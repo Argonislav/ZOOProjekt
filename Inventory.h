@@ -13,6 +13,13 @@ private:
     std::vector<Item> items;
     int capacity;
     int currentItemCount;
+
+public:
+    Inventory(int capacity = 0);
+    bool addItem(Item* item);
+    bool removeItem(Item* item);
+    void printItems();
+    bool isFull() const;
 };
 
 
