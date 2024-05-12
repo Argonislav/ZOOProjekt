@@ -5,9 +5,14 @@
 #ifndef ZOOPROJEKT_INVENTORY_H
 #define ZOOPROJEKT_INVENTORY_H
 
+#include "Item.h"
+#include <vector>
 
 class Inventory {
-
+private:
+    std::vector<Item> items;
+    int capacity;
+    int currentItemCount;
 };
 
 
