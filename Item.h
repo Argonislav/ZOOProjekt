@@ -1,5 +1,5 @@
 //
-// Created by Oldrich Houska on 12.05.2024.
+// Created by Lukas Houska on 12.05.2024.
 //
 
 #ifndef ZOOPROJEKT_ITEM_H
@@ -15,16 +15,15 @@ enum class ItemType {
 
 class Item {
 private:
-    std::string name;
-    std::string description;
-    ItemType type;
-    double weight;
-    int attackBonus;
-    int healthBonus;
-    int defenseBonus;
+    std::string m_name;
+    std::string m_description;
+    ItemType m_type;
+    int m_attackBonus;
+    int m_healthBonus;
+    int m_defenseBonus;
 
 public:
-    Item(const std::string& name, const std::string& description, ItemType type, int attackBonus = 0, int healthBonus = 0, int defenseBonus = 0);
+    Item(std::string name, std::string description, ItemType type, int attackBonus = 0, int healthBonus = 0, int defenseBonus = 0);
 
     std::string getName();
     void setName(std::string name);
