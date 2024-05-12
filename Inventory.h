@@ -10,7 +10,7 @@
 
 class Inventory {
 private:
-    std::vector<Item> items;
+    std::vector<Item*> items;
     int capacity;
     int currentItemCount;
 
@@ -19,7 +19,7 @@ public:
     bool addItem(Item* item);
     bool removeItem(Item* item);
     void printItems();
-    bool isFull() const;
+    bool isFull();
 };
 
 
