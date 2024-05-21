@@ -26,3 +26,20 @@ void Character::attack(Character *target) {
 bool Character::isAlive(){
     return m_health > 0;
 }
+
+// Getter methods
+std::string Character::getName() const {
+    return m_name;
+}
+
+float Character::getHealth() const {
+    return m_health;
+}
+
+float Character::getAttack() const {
+    return m_attack;
+}
+
+float Character::getDefense() const {
+    return m_defense;
+}
