@@ -1,7 +1,3 @@
-//
-// Created by matla on 5/15/2024.
-//
-
 #ifndef DUNGEON_H
 #define DUNGEON_H
 
@@ -10,12 +6,13 @@
 #include <cstdlib>
 #include <ctime>
 
+#include "Item.h"  // Include your Item header
 
-enum class TileType { EMPTY, WALL, DOOR, PLAYER, OBSTACLE };
-
+enum class TileType { EMPTY, WALL, DOOR, PLAYER, OBSTACLE, ITEM };
 
 struct Tile {
     TileType type;
+    Item* item; // Pointer to an item (can be nullptr if no item)
 };
 
 class Dungeon {
