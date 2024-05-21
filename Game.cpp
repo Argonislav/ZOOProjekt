@@ -55,7 +55,7 @@ void Game::startNewGame() {
             if (dungeon.playerOnItem()) {
                 Item* foundItem = dungeon.getPlayerItem();
 
-                if (hero->getInventory()->addItem(foundItem)) { // Use getter to access inventory
+                if (hero->getInventory()->addItem(foundItem)) {
                     std::cout << "You found a " << foundItem->getName() << "! " << foundItem->getDescription() << std::endl;
                     std::cout << "It has been added to your inventory." << std::endl;
                 } else {

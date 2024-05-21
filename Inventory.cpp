@@ -11,9 +11,8 @@ bool Inventory::addItem(Item* item) {
     if (isFull()) {
         return false;
     }
-    items.push_back(item); // Add the item to the list of items.
-    currentItemCount++;   // Increment item count
-    delete item;
+    items.push_back(item); // Přidání položky do seznamu.
+    currentItemCount++;   // Zvýšení počtu položek
     return true;
 }
 
@@ -35,9 +34,11 @@ void Inventory::printItems() {
         std::cout << "Inventory is empty." << std::endl;
         return;
     }
-    std::cout << "Inventory:" << std::endl;
-    for (int i = 0; i < currentItemCount; ++i) {
-        std::cout << i + 1 << ". " << items[i]->getName() << std::endl;
+    else{
+        std::cout << "Inventory:" << std::endl;
+        for (const auto& item : items) {
+            std::cout << item->getName() << " - " << item->getDescription() << std::endl;
+        }
     }
 }
 
