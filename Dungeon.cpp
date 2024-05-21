@@ -2,6 +2,7 @@
 #include "Sword.h"
 #include "Armor.h"
 #include "Potion.h"
+#include "Inventory.h"
 
 #include <iostream>
 
@@ -54,7 +55,8 @@ void Dungeon::generateRoom() {
         layout[obstacleY][obstacleX].type = TileType::OBSTACLE;
     }
 
-    // Add items to the room
+    // Add items to the room (only one of each type)
+    bool itemPlaced[3] = {false, false, false}; // 0: Sword, 1: Armor, 2: Potion
     int numItems = rand() % 3 + 1; // Randomly place 1-3 items per room
     for (int i = 0; i < numItems; ++i) {
         int itemX, itemY;
@@ -63,8 +65,14 @@ void Dungeon::generateRoom() {
             itemY = rand() % (m_height - 2) + 1;
         } while (layout[itemY][itemX].type != TileType::EMPTY);
 
-        // Determine item type randomly
-        int itemType = rand() % 3;
+        // Determine item type randomly, ensuring only one of each type is placed
+        int itemType;
+        do {
+            itemType = rand() % 3;
+        } while (itemPlaced[itemType]);
+
+        itemPlaced[itemType] = true;
+
         switch (itemType) {
             case 0:
                 layout[itemY][itemX].item = new Sword("Rusty Sword", "An old, worn sword.", 5);
@@ -80,7 +88,7 @@ void Dungeon::generateRoom() {
     }
 }
 
-bool Dungeon::movePlayer(char direction) {
+bool Dungeon::movePlayer(char direction, Inventory& inventory) {
     int dx = 0, dy = 0;
     switch (direction) {
         case 'w': dy = -1; break;
@@ -95,7 +103,9 @@ bool Dungeon::movePlayer(char direction) {
     int newX = playerX + dx;
     int newY = playerY + dy;
 
-    if (newX >= 0 && newX < m_width && newY >= 0 && newY < m_height && layout[newY][newX].type != TileType::WALL && layout[newY][newX].type != TileType::OBSTACLE) {
+    if (newX >= 0 && newX < m_width && newY >= 0 && newY < m_height &&
+        layout[newY][newX].type != TileType::WALL && layout[newY][newX].type != TileType::OBSTACLE) {
+
         layout[playerY][playerX].type = TileType::EMPTY;
         playerX = newX;
         playerY = newY;
@@ -103,14 +113,14 @@ bool Dungeon::movePlayer(char direction) {
 
         if (layout[newY][newX].type == TileType::ITEM) {
             Item* foundItem = layout[newY][newX].item;
-            std::cout << "You found a " << foundItem->getName() << "! " << foundItem->getDescription() << std::endl;
 
-            // Use the item
-            foundItem->use();
-
-            delete foundItem; // Free the memory after using
-            layout[newY][newX].item = nullptr;
-            layout[newY][newX].type = TileType::EMPTY;
+            if (inventory.addItem(foundItem)) {
+                std::cout << "You found a " << foundItem->getName() << "! " << foundItem->getDescription() << std::endl;
+                std::cout << "It has been added to your inventory." << std::endl;
+            } else {
+                std::cout << "You found a " << foundItem->getName() << "! " << foundItem->getDescription() << std::endl;
+                std::cout << "Your inventory is full. You cannot pick it up." << std::endl;
+            }
         }
 
         if (playerX == 0 || playerX == m_width - 1) {
@@ -148,7 +158,7 @@ void Dungeon::print() const {
                             } else if (dynamic_cast<Armor*>(layout[y][x].item)) {
                                 std::cout << 'A'; // Armor
                             } else if (dynamic_cast<Potion*>(layout[y][x].item)) {
-                                std::cout << 'H'; // Potion
+                                std::cout << 'H'; // Health Potion
                             }
                         } else {
                             std::cout << '?'; // Unknown item (shouldn't happen)
@@ -159,4 +169,17 @@ void Dungeon::print() const {
         }
         std::cout << std::endl;
     }
+}
+
+bool Dungeon::playerOnItem() {
+    return layout[playerY][playerX].type == TileType::ITEM;
+}
+
+void Dungeon::removePlayerItem() {
+    layout[playerY][playerX].type = TileType::EMPTY;
+    layout[playerY][playerX].item = nullptr;
+}
+
+Item* Dungeon::getPlayerItem() {
+    return layout[playerY][playerX].item;
 }

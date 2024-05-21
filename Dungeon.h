@@ -7,6 +7,7 @@
 #include <ctime>
 
 #include "Item.h"  // Include your Item header
+#include "Inventory.h"
 
 enum class TileType { EMPTY, WALL, DOOR, PLAYER, OBSTACLE, ITEM };
 
@@ -25,8 +26,11 @@ private:
 public:
     Dungeon(int width, int height);
     void generateRoom();
-    bool movePlayer(char direction);
+    bool movePlayer(char direction, Inventory& inventory);
     void print() const;
+    bool playerOnItem();
+    void removePlayerItem();
+    Item* getPlayerItem();
 };
 
 #endif // ZOOPROJEKT_DUNGEON_H

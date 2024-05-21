@@ -11,8 +11,9 @@ bool Inventory::addItem(Item* item) {
     if (isFull()) {
         return false;
     }
-    items.push_back(item);
-    currentItemCount++;
+    items.push_back(item); // Add the item to the list of items.
+    currentItemCount++;   // Increment item count
+    delete item;
     return true;
 }
 

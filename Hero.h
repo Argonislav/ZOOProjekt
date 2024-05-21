@@ -1,19 +1,21 @@
-//
-// Created by Jindřich Šantrůček on 12.05.2024.
-//
-
-#ifndef UNTITLED_HERO_H
-#define UNTITLED_HERO_H
+#ifndef HERO_H
+#define HERO_H
 
 #include <string>
 #include "Character.h"
+#include "Inventory.h"
 
-
-class Hero: public Character {
+class Hero : public Character {
 public:
+    // Constructor
     Hero(std::string name, float health, float attack, float defense);
 
+    // Inventory accessors (getters and setters)
+    Inventory* getInventory() const;
+    void setInventory(Inventory* newInventory);
+
+private:
+    Inventory* inventory; // Inventory pointer
 };
 
-
-#endif //UNTITLED_HERO_H
+#endif // HERO_H
