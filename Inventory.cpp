@@ -8,12 +8,11 @@
 Inventory::Inventory(int capacity) : capacity(capacity), currentItemCount(0) {}
 
 bool Inventory::addItem(Item* item) {
-    if (isFull()) {
-        return false;
+    if (items.size() < capacity) {
+        items.push_back(item);
+        return true;
     }
-    items.push_back(item); // Přidání položky do seznamu.
-    currentItemCount++;   // Zvýšení počtu položek
-    return true;
+    return false;
 }
 
 bool Inventory::removeItem(Item* item) {

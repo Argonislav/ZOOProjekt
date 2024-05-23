@@ -1,6 +1,7 @@
+// game.cpp
 #include "Game.h"
 #include "Inventory.h"
-#include "Hero.h"  // Include the hero header file
+#include "Hero.h"
 #include <iostream>
 
 Game::Game() : hero(nullptr) {}
@@ -34,7 +35,7 @@ void Game::startNewGame() {
     Inventory inventory(10); // Create inventory with capacity of 10
     hero->setInventory(&inventory); // Associate inventory with the hero
 
-    Dungeon dungeon(10, 7);
+    Dungeon dungeon(10, 7, hero); // Pass Hero to Dungeon
     dungeon.print();
 
     char action;
@@ -47,7 +48,7 @@ void Game::startNewGame() {
         } else if (action == 'i') {
             hero->getInventory()->printItems(); // Use getter to access inventory
         } else {
-            if (dungeon.movePlayer(action, *hero->getInventory())) { // Pass inventory by dereferencing the pointer
+            if (dungeon.movePlayer(action)) { // No need to pass inventory
                 break; // Game over (player won or lost)
             }
 

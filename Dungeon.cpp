@@ -1,12 +1,13 @@
+// dungeon.cpp
 #include "Dungeon.h"
 #include "Sword.h"
 #include "Armor.h"
 #include "Potion.h"
 #include "Inventory.h"
-
 #include <iostream>
 
-Dungeon::Dungeon(int width, int height) : m_width(width), m_height(height), roomCount(0) {
+Dungeon::Dungeon(int width, int height, Hero* hero)
+        : m_width(width), m_height(height), roomCount(0), hero(hero) { // Initialize hero
     srand(time(0));
     generateRoom();
 }
@@ -88,7 +89,7 @@ void Dungeon::generateRoom() {
     }
 }
 
-bool Dungeon::movePlayer(char direction, Inventory& inventory) {
+bool Dungeon::movePlayer(char direction) {
     int dx = 0, dy = 0;
     switch (direction) {
         case 'w': dy = -1; break;
@@ -106,22 +107,23 @@ bool Dungeon::movePlayer(char direction, Inventory& inventory) {
     if (newX >= 0 && newX < m_width && newY >= 0 && newY < m_height &&
         layout[newY][newX].type != TileType::WALL && layout[newY][newX].type != TileType::OBSTACLE) {
 
-        layout[playerY][playerX].type = TileType::EMPTY;
-        playerX = newX;
-        playerY = newY;
-        layout[playerY][playerX].type = TileType::PLAYER;
-
         if (layout[newY][newX].type == TileType::ITEM) {
             Item* foundItem = layout[newY][newX].item;
-
-            if (inventory.addItem(foundItem)) {
+            if (hero->getInventory()->addItem(foundItem)) {
                 std::cout << "You found a " << foundItem->getName() << "! " << foundItem->getDescription() << std::endl;
                 std::cout << "It has been added to your inventory." << std::endl;
+                layout[newY][newX].item = nullptr; // Remove item from the dungeon
             } else {
                 std::cout << "You found a " << foundItem->getName() << "! " << foundItem->getDescription() << std::endl;
                 std::cout << "Your inventory is full. You cannot pick it up." << std::endl;
             }
+            layout[newY][newX].type = TileType::EMPTY;
         }
+
+        layout[playerY][playerX].type = TileType::EMPTY;
+        playerX = newX;
+        playerY = newY;
+        layout[playerY][playerX].type = TileType::PLAYER;
 
         if (playerX == 0 || playerX == m_width - 1) {
             layout[playerY][playerX].type = TileType::WALL;
@@ -176,10 +178,15 @@ bool Dungeon::playerOnItem() {
 }
 
 void Dungeon::removePlayerItem() {
-    layout[playerY][playerX].type = TileType::EMPTY;
-    layout[playerY][playerX].item = nullptr;
+    if (layout[playerY][playerX].type == TileType::ITEM) {
+        layout[playerY][playerX].item = nullptr;
+        layout[playerY][playerX].type = TileType::EMPTY;
+    }
 }
 
 Item* Dungeon::getPlayerItem() {
-    return layout[playerY][playerX].item;
+    if (layout[playerY][playerX].type == TileType::ITEM) {
+        return layout[playerY][playerX].item;
+    }
+    return nullptr;
 }

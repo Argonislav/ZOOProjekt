@@ -1,3 +1,4 @@
+// dungeon.h
 #ifndef DUNGEON_H
 #define DUNGEON_H
 
@@ -5,9 +6,9 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
-
-#include "Item.h"  // Include your Item header
+#include "Item.h"
 #include "Inventory.h"
+#include "Hero.h"  // Include the Hero header
 
 enum class TileType { EMPTY, WALL, DOOR, PLAYER, OBSTACLE, ITEM };
 
@@ -22,11 +23,12 @@ private:
     int playerX, playerY;
     int m_height, m_width;
     int roomCount;
+    Hero* hero; // Reference to the Hero
 
 public:
-    Dungeon(int width, int height);
+    Dungeon(int width, int height, Hero* hero); // Modify constructor to accept Hero
     void generateRoom();
-    bool movePlayer(char direction, Inventory& inventory);
+    bool movePlayer(char direction);
     void print() const;
     bool playerOnItem();
     void removePlayerItem();
