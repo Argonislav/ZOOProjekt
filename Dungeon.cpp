@@ -6,8 +6,8 @@
 #include "Inventory.h"
 #include <iostream>
 
-Dungeon::Dungeon(int width, int height, Hero* hero)
-        : m_width(width), m_height(height), roomCount(0), hero(hero) { // Initialize hero
+Dungeon::Dungeon(int width, int height, Hero* hero, Monster* monster)
+        : m_width(width), m_height(height), roomCount(0), hero(hero), monster(monster) { // Initialize hero and monster
     srand(time(0));
     generateRoom();
 }
@@ -19,7 +19,7 @@ void Dungeon::generateRoom() {
     for (int y = 0; y < m_height; ++y) {
         layout[y].resize(m_width);
         for (int x = 0; x < m_width; ++x) {
-            layout[y][x] = {TileType::WALL, nullptr};
+            layout[y][x] = {TileType::WALL, nullptr}; // Initialize item pointer to nullptr
         }
     }
 
@@ -87,6 +87,15 @@ void Dungeon::generateRoom() {
         }
         layout[itemY][itemX].type = TileType::ITEM;
     }
+
+    // Place the monster in the room
+    int monsterX, monsterY;
+    do {
+        monsterX = rand() % (m_width - 2) + 1;
+        monsterY = rand() % (m_height - 2) + 1;
+    } while (layout[monsterY][monsterX].type != TileType::EMPTY);
+    layout[monsterY][monsterX].type = TileType::MONSTER;
+    layout[monsterY][monsterX].monster = monster;
 }
 
 bool Dungeon::movePlayer(char direction) {
@@ -118,6 +127,28 @@ bool Dungeon::movePlayer(char direction) {
                 std::cout << "Your inventory is full. You cannot pick it up." << std::endl;
             }
             layout[newY][newX].type = TileType::EMPTY;
+        } else if (layout[newY][newX].type == TileType::MONSTER) {
+            // Fight with the monster
+            Monster* monster = static_cast<Monster*>(layout[newY][newX].monster);
+            std::cout << "You encountered a monster: " << monster->getName() << std::endl;
+            std::cout << "Prepare for battle!" << std::endl;
+            while (hero->isAlive() && monster->isAlive()) {
+                // Hero attacks first
+                hero->attack(monster);
+                // Check if the monster is defeated
+                if (!monster->isAlive()) {
+                    std::cout << "You defeated the monster!" << std::endl;
+                    layout[newY][newX].type = TileType::EMPTY;
+                    break;
+                }
+                // Monster attacks
+                monster->attack(hero);
+                // Check if the hero is defeated
+                if (!hero->isAlive()) {
+                    std::cout << "You were defeated by the monster!" << std::endl;
+                    return true; // Game over
+                }
+            }
         }
 
         layout[playerY][playerX].type = TileType::EMPTY;
@@ -146,13 +177,13 @@ void Dungeon::print() const {
     for (int y = 0; y < m_height; ++y) {
         for (int x = 0; x < m_width; ++x) {
             if (x == playerX && y == playerY) {
-                std::cout << 'P';
+                std::cout << 'P'; // Player
             } else {
                 switch (layout[y][x].type) {
-                    case TileType::EMPTY: std::cout << '.'; break;
-                    case TileType::WALL: std::cout << '#'; break;
-                    case TileType::DOOR: std::cout << 'D'; break;
-                    case TileType::OBSTACLE: std::cout << 'O'; break;
+                    case TileType::EMPTY: std::cout << '.'; break; // Empty space
+                    case TileType::WALL: std::cout << '#'; break; // Wall
+                    case TileType::DOOR: std::cout << 'D'; break; // Door
+                    case TileType::OBSTACLE: std::cout << 'O'; break; // Obstacle
                     case TileType::ITEM:
                         if (layout[y][x].item != nullptr) {
                             if (dynamic_cast<Sword*>(layout[y][x].item)) {
@@ -166,6 +197,7 @@ void Dungeon::print() const {
                             std::cout << '?'; // Unknown item (shouldn't happen)
                         }
                         break;
+                    case TileType::MONSTER: std::cout << 'M'; break; // Monster
                 }
             }
         }
@@ -189,4 +221,8 @@ Item* Dungeon::getPlayerItem() {
         return layout[playerY][playerX].item;
     }
     return nullptr;
+}
+
+TileType Dungeon::getPlayerTileType() const {
+    return layout[playerY][playerX].type;
 }

@@ -2,6 +2,7 @@
 #include "Game.h"
 #include "Inventory.h"
 #include "Hero.h"
+#include "Monster.h"
 #include <iostream>
 
 Game::Game() : hero(nullptr) {}
@@ -35,7 +36,17 @@ void Game::startNewGame() {
     Inventory inventory(10); // Create inventory with capacity of 10
     hero->setInventory(&inventory); // Associate inventory with the hero
 
-    Dungeon dungeon(10, 7, hero); // Pass Hero to Dungeon
+    // Create a monster
+    Monster* monster = new Monster("Goblin", 80.0f, 30.0f, 10.0f); // Adjust monster stats accordingly
+
+    // Display monster stats
+    std::cout << "\nThe enemy monster's stats:\n";
+    std::cout << "Name: " << monster->getName() << std::endl;
+    std::cout << "Health: " << monster->getHealth() << std::endl;
+    std::cout << "Attack: " << monster->getAttack() << std::endl;
+    std::cout << "Defense: " << monster->getDefense() << std::endl;
+
+    Dungeon dungeon(10, 7, hero, monster); // Pass Hero and Monster to Dungeon
     dungeon.print();
 
     char action;
@@ -66,12 +77,20 @@ void Game::startNewGame() {
 
                 dungeon.removePlayerItem();
             }
+
+            // Check if the player encountered a monster
+            if (dungeon.getPlayerTileType() == TileType::MONSTER) {
+                std::cout << "You encountered a monster: " << monster->getName() << std::endl;
+                std::cout << "Prepare for battle!" << std::endl;
+            }
+
             std::cout << std::endl;
             dungeon.print();
         }
     }
 
     delete hero;  // Clean up the dynamically allocated Hero object
+    delete monster; // Clean up the dynamically allocated Monster object
 }
 
 void Game::endGame() const {
