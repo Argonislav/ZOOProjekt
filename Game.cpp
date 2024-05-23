@@ -26,38 +26,30 @@ void Game::startNewGame() {
 
     hero = new Hero(heroName, health, attack, defense);
 
-    // Display hero stats
-    std::cout << "\nYour hero's stats:\n";
-    std::cout << "Name: " << hero->getName() << std::endl;
-    std::cout << "Health: " << hero->getHealth() << std::endl;
-    std::cout << "Attack: " << hero->getAttack() << std::endl;
-    std::cout << "Defense: " << hero->getDefense() << std::endl;
-
     Inventory inventory(10); // Create inventory with capacity of 10
     hero->setInventory(&inventory); // Associate inventory with the hero
 
     // Create a monster
     Monster* monster = new Monster("Goblin", 80.0f, 30.0f, 10.0f); // Adjust monster stats accordingly
 
-    // Display monster stats
-    std::cout << "\nThe enemy monster's stats:\n";
-    std::cout << "Name: " << monster->getName() << std::endl;
-    std::cout << "Health: " << monster->getHealth() << std::endl;
-    std::cout << "Attack: " << monster->getAttack() << std::endl;
-    std::cout << "Defense: " << monster->getDefense() << std::endl;
-
     Dungeon dungeon(10, 7, hero, monster); // Pass Hero and Monster to Dungeon
     dungeon.print();
 
     char action;
     while (true) {
-        std::cout << "Enter a key to move (w, a, s, d), 'i' to view inventory, or 'q' to quit: ";
+        std::cout << "Enter a key to move (w, a, s, d), 'i' to view inventory, 's' to view hero stats, or 'q' to quit: ";
         std::cin >> action;
 
         if (action == 'q') {
             break;
         } else if (action == 'i') {
             hero->getInventory()->printItems(); // Use getter to access inventory
+        } else if (action == 's') {
+            // Display hero stats
+            std::cout << "\nYour hero's stats:\n";
+            std::cout << "Health: " << hero->getHealth() << std::endl;
+            std::cout << "Attack: " << hero->getAttack() << std::endl;
+            std::cout << "Defense: " << hero->getDefense() << std::endl;
         } else {
             if (dungeon.movePlayer(action)) { // No need to pass inventory
                 break; // Game over (player won or lost)
