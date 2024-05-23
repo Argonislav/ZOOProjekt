@@ -10,6 +10,7 @@ Inventory::Inventory(int capacity) : capacity(capacity), currentItemCount(0) {}
 bool Inventory::addItem(Item* item) {
     if (items.size() < capacity) {
         items.push_back(item);
+        currentItemCount++; // Zvýšení počtu položek v inventáři
         return true;
     }
     return false;
