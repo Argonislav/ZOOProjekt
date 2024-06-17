@@ -37,14 +37,14 @@ void Game::startNewGame() {
 
     char action;
     while (true) {
-        std::cout << "Enter a key to move (w, a, s, d), 'i' to view inventory, 's' to view hero stats, or 'q' to quit: ";
+        std::cout << "Enter a key to move (w, a, s, d), 'i' to view inventory, 't' to view hero stats, or 'q' to quit: ";
         std::cin >> action;
 
         if (action == 'q') {
             break;
         } else if (action == 'i') {
             hero->getInventory()->printItems(); // Use getter to access inventory
-        } else if (action == 's') {
+        } else if (action == 't') {
             // Display hero stats
             std::cout << "\nYour hero's stats:\n";
             std::cout << "Health: " << hero->getHealth() << std::endl;
