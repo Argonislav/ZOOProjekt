@@ -15,13 +15,7 @@ Dungeon::Dungeon(int width, int height, Hero* hero, Monster* monster)
 void Dungeon::generateRoom() {
     // Clear the previous layout
     layout.clear();
-    layout.resize(m_height);
-    for (int y = 0; y < m_height; ++y) {
-        layout[y].resize(m_width);
-        for (int x = 0; x < m_width; ++x) {
-            layout[y][x] = {TileType::WALL, nullptr, nullptr}; // Initialize item and monster pointers to nullptr
-        }
-    }
+    layout.resize(m_height, std::vector<Tile>(m_width, {TileType::WALL, nullptr, nullptr}));
 
     // Create empty space for the room
     for (int y = 1; y < m_height - 1; ++y) {
@@ -31,75 +25,65 @@ void Dungeon::generateRoom() {
     }
 
     // Place the exit door
-    int exitSide = rand() % 2;
-    int exitY = rand() % (m_height - 2) + 1;
-    layout[exitY][exitSide * (m_width - 1)].type = TileType::DOOR;
+    if (roomCount > 0) {
+        int exitSide = playerX == 0 ? m_width - 1 : 0;
+        layout[playerY][exitSide].type = TileType::DOOR;
+    } else {
+        // Place the initial door randomly for the first room
+        int exitSide = rand() % 2;
+        int exitY = rand() % (m_height - 2) + 1;
+        layout[exitY][exitSide * (m_width - 1)].type = TileType::DOOR;
+    }
 
-    // Place the player
+    // Place the player (ensuring it's not on a door)
     do {
         playerX = rand() % (m_width - 2) + 1;
         playerY = rand() % (m_height - 2) + 1;
     } while (layout[playerY][playerX].type != TileType::EMPTY);
     layout[playerY][playerX].type = TileType::PLAYER;
 
-    // Place obstacles
+    // Place obstacles (avoiding doors and player)
     int numObstacles = (m_width * m_height) / 15;
-    int obstacleDistanceFromDoor = 2;
     for (int i = 0; i < numObstacles; ++i) {
         int obstacleX, obstacleY;
         do {
             obstacleX = rand() % (m_width - 2) + 1;
             obstacleY = rand() % (m_height - 2) + 1;
-        } while (layout[obstacleY][obstacleX].type != TileType::EMPTY ||
-                 (abs(obstacleX - exitSide * (m_width - 1)) <= obstacleDistanceFromDoor &&
-                  abs(obstacleY - exitY) <= obstacleDistanceFromDoor));
+        } while (layout[obstacleY][obstacleX].type != TileType::EMPTY);
         layout[obstacleY][obstacleX].type = TileType::OBSTACLE;
     }
 
-    // Add items to the room (only one of each type)
-    bool itemPlaced[3] = {false, false, false}; // 0: Sword, 1: Armor, 2: Potion
-    int numItems = rand() % 3 + 1; // Randomly place 1-3 items per room
+    // Place items (one of each type, avoiding other objects)
+    bool itemPlaced[3] = {false}; // Track if each item type has been placed
+    int numItems = rand() % 3 + 1; // Place 1-3 items
     for (int i = 0; i < numItems; ++i) {
-        int itemX, itemY;
+        int itemX, itemY, itemType;
         do {
             itemX = rand() % (m_width - 2) + 1;
             itemY = rand() % (m_height - 2) + 1;
-        } while (layout[itemY][itemX].type != TileType::EMPTY);
-
-        // Determine item type randomly, ensuring only one of each type is placed
-        int itemType;
-        do {
-            itemType = rand() % 3;
-        } while (itemPlaced[itemType]);
+            itemType = rand() % 3; // 0: Sword, 1: Armor, 2: Potion
+        } while (layout[itemY][itemX].type != TileType::EMPTY || itemPlaced[itemType]);
 
         itemPlaced[itemType] = true;
-
         switch (itemType) {
-            case 0:
-                layout[itemY][itemX].item = new Sword("Rusty Sword", "An old, worn sword.", 5);
-                break;
-            case 1:
-                layout[itemY][itemX].item = new Armor("Leather Armor", "Basic protection.", 2);
-                break;
-            case 2:
-                layout[itemY][itemX].item = new Potion("Healing Potion", "Restores some health.");
-                break;
+            case 0: layout[itemY][itemX].item = new Sword("Rusty Sword", "An old, worn sword.", 5); break;
+            case 1: layout[itemY][itemX].item = new Armor("Leather Armor", "Basic protection.", 2); break;
+            case 2: layout[itemY][itemX].item = new Potion("Healing Potion", "Restores some health."); break;
         }
         layout[itemY][itemX].type = TileType::ITEM;
     }
 
-    // Place the monster in the room
+    // Place the monster (avoiding other objects)
     int monsterX, monsterY;
     do {
         monsterX = rand() % (m_width - 2) + 1;
         monsterY = rand() % (m_height - 2) + 1;
     } while (layout[monsterY][monsterX].type != TileType::EMPTY);
-    layout[monsterY][monsterX].type = TileType::MONSTER;
 
-    // Vytvoření nového monstra a uložení do layout a monster proměnné
-    delete monster; // Smažeme předchozí monstrum
-    monster = new Monster("Goblin", 80.0f, 30.0f, 10.0f); // Vytvoříme nové monstrum
+    delete monster; // Delete the previous monster if it exists
+    monster = new Monster("Goblin", 80.0f, 30.0f, 10.0f);
     layout[monsterY][monsterX].monster = monster;
+    layout[monsterY][monsterX].type = TileType::MONSTER;
 }
 
 bool Dungeon::movePlayer(char direction) {
@@ -117,10 +101,48 @@ bool Dungeon::movePlayer(char direction) {
     int newX = playerX + dx;
     int newY = playerY + dy;
 
+    // Opravená kontrola kolize
     if (newX >= 0 && newX < m_width && newY >= 0 && newY < m_height &&
         layout[newY][newX].type != TileType::WALL && layout[newY][newX].type != TileType::OBSTACLE) {
 
-        if (layout[newY][newX].type == TileType::ITEM) {
+        if (layout[newY][newX].type == TileType::DOOR) {
+            // Kontrola, zda je monstrum poraženo
+            bool monsterAlive = false;
+            for (int y = 0; y < m_height; ++y) {
+                for (int x = 0; x < m_width; ++x) {
+                    if (layout[y][x].type == TileType::MONSTER) {
+                        monsterAlive = true;
+                        break;
+                    }
+                }
+            }
+
+            if (monsterAlive) {
+                std::cout << "You must defeat the monster in this room before you can proceed!" << std::endl;
+
+                // Vrácení hráče na předchozí pozici
+                layout[newY][newX].type = TileType::DOOR; // Obnovíme dlaždici dveří
+                layout[playerY][playerX].type = TileType::PLAYER; // Vrátíme hráče zpět
+
+                return false; // Zůstaneme ve stejné místnosti
+            } else {
+                // Přejdeme do další místnosti
+                roomCount++;
+                if (roomCount >= 3) {
+                    std::cout << "Congratulations! You have successfully completed the dungeon!" << std::endl;
+                    return true;
+                }
+                std::cout << "Entering the next room!" << std::endl;
+                generateRoom();
+
+                // Nastavení pozice hráče na pozici dveří v nové místnosti
+                if (playerX == 0) {
+                    playerX = m_width - 1; // Hráč přišel zleva, dveře jsou vpravo
+                } else {
+                    playerX = 0; // Hráč přišel zprava, dveře jsou vlevo
+                }
+            }
+        } else if (layout[newY][newX].type == TileType::ITEM) {
             Item* foundItem = layout[newY][newX].item;
             if (hero->getInventory()->addItem(foundItem)) {
                 std::cout << "You found a " << foundItem->getName() << "! " << foundItem->getDescription() << std::endl;
@@ -130,7 +152,12 @@ bool Dungeon::movePlayer(char direction) {
                 std::cout << "You found a " << foundItem->getName() << "! " << foundItem->getDescription() << std::endl;
                 std::cout << "Your inventory is full. You cannot pick it up." << std::endl;
             }
-            layout[newY][newX].type = TileType::EMPTY;
+
+            // Nastavení pozice hráče na pozici předmětu
+            layout[playerY][playerX].type = TileType::EMPTY;
+            playerX = newX;
+            playerY = newY;
+            layout[playerY][playerX].type = TileType::PLAYER;
         } else if (layout[newY][newX].type == TileType::MONSTER) {
             // Setkání s monstrem - nabídka možností
             monster = static_cast<Monster*>(layout[newY][newX].monster);
@@ -179,17 +206,6 @@ bool Dungeon::movePlayer(char direction) {
             playerX = newX;
             playerY = newY;
             layout[playerY][playerX].type = TileType::PLAYER;
-
-            if (playerX == 0 || playerX == m_width - 1) {
-                layout[playerY][playerX].type = TileType::WALL;
-                roomCount++;
-                if (roomCount >= 3) {
-                    std::cout << "Congratulations! You have successfully completed the dungeon!" << std::endl;
-                    return true;
-                }
-                std::cout << "Entering the next room!" << std::endl;
-                generateRoom();
-            }
         }
     } else {
         std::cout << "You can't move there!" << std::endl;
