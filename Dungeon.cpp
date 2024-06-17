@@ -132,43 +132,64 @@ bool Dungeon::movePlayer(char direction) {
             }
             layout[newY][newX].type = TileType::EMPTY;
         } else if (layout[newY][newX].type == TileType::MONSTER) {
-            // Fight with the monster
-            Monster* monster = static_cast<Monster*>(layout[newY][newX].monster);
-            std::cout << "You encountered a monster: " << monster->getName() << std::endl;
-            std::cout << "Prepare for battle!" << std::endl;
-            while (hero->isAlive() && monster->isAlive()) {
-                // Hero attacks first
-                hero->attack(monster);
-                // Check if the monster is defeated
-                if (!monster->isAlive()) {
-                    std::cout << "You defeated the monster!" << std::endl;
-                    layout[newY][newX].type = TileType::EMPTY;
-                    break;
-                }
-                // Monster attacks
-                monster->attack(hero);
-                // Check if the hero is defeated
-                if (!hero->isAlive()) {
-                    std::cout << "You were defeated by the monster!" << std::endl;
-                    return true; // Game over
-                }
-            }
-        }
+            // Setkání s monstrem - nabídka možností
+            monster = static_cast<Monster*>(layout[newY][newX].monster);
+            std::cout << "You encountered a " << monster->getName() << "!" << std::endl;
+            std::cout << "Monster Stats:" << std::endl;
+            std::cout << "  Health: " << monster->getHealth() << std::endl;
+            std::cout << "  Attack: " << monster->getAttack() << std::endl;
+            std::cout << "  Defense: " << monster->getDefense() << std::endl;
 
-        layout[playerY][playerX].type = TileType::EMPTY;
-        playerX = newX;
-        playerY = newY;
-        layout[playerY][playerX].type = TileType::PLAYER;
+            char choice;
+            do {
+                std::cout << "\nWhat do you want to do? (f)ight or (r)un: ";
+                std::cin >> choice;
+            } while (choice != 'f' && choice != 'r');
 
-        if (playerX == 0 || playerX == m_width - 1) {
-            layout[playerY][playerX].type = TileType::WALL;
-            roomCount++;
-            if (roomCount >= 3) {
-                std::cout << "Congratulations! You have successfully completed the dungeon!" << std::endl;
-                return true;
+            if (choice == 'f') {
+                // Boj s monstrem
+                std::cout << "Prepare for battle!" << std::endl;
+                while (hero->isAlive() && monster->isAlive()) {
+                    // Hero attacks first
+                    hero->attack(monster);
+                    // Check if the monster is defeated
+                    if (!monster->isAlive()) {
+                        std::cout << "You defeated the monster!" << std::endl;
+                        layout[newY][newX].type = TileType::EMPTY;
+                        break;
+                    }
+                    // Monster attacks
+                    monster->attack(hero);
+                    // Check if the hero is defeated
+                    if (!hero->isAlive()) {
+                        std::cout << "You were defeated by the monster!" << std::endl;
+                        return true; // Game over
+                    }
+                }
+            } else if (choice == 'r') {
+                // Útěk - hráč se vrací na předchozí pozici
+                std::cout << "You run away!" << std::endl;
+                layout[newY][newX].type = TileType::MONSTER; // Obnovíme dlaždici monstra
+                layout[playerY][playerX].type = TileType::PLAYER; // Vrátíme hráče na původní pozici
+                return false; // Nepokračujeme v pohybu
             }
-            std::cout << "Entering the next room!" << std::endl;
-            generateRoom();
+        } else {
+            // Ostatní pohyby - hráč se posune na nové místo
+            layout[playerY][playerX].type = TileType::EMPTY;
+            playerX = newX;
+            playerY = newY;
+            layout[playerY][playerX].type = TileType::PLAYER;
+
+            if (playerX == 0 || playerX == m_width - 1) {
+                layout[playerY][playerX].type = TileType::WALL;
+                roomCount++;
+                if (roomCount >= 3) {
+                    std::cout << "Congratulations! You have successfully completed the dungeon!" << std::endl;
+                    return true;
+                }
+                std::cout << "Entering the next room!" << std::endl;
+                generateRoom();
+            }
         }
     } else {
         std::cout << "You can't move there!" << std::endl;
