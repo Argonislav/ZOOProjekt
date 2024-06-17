@@ -7,7 +7,7 @@
 #include <iostream>
 
 Dungeon::Dungeon(int width, int height, Hero* hero, Monster* monster)
-        : m_width(width), m_height(height), roomCount(0), hero(hero), monster(monster) { // Initialize hero and monster
+        : m_width(width), m_height(height), roomCount(0), hero(hero), monster(monster) {
     srand(time(0));
     generateRoom();
 }
@@ -19,7 +19,7 @@ void Dungeon::generateRoom() {
     for (int y = 0; y < m_height; ++y) {
         layout[y].resize(m_width);
         for (int x = 0; x < m_width; ++x) {
-            layout[y][x] = {TileType::WALL, nullptr}; // Initialize item pointer to nullptr
+            layout[y][x] = {TileType::WALL, nullptr, nullptr}; // Initialize item and monster pointers to nullptr
         }
     }
 
@@ -95,6 +95,10 @@ void Dungeon::generateRoom() {
         monsterY = rand() % (m_height - 2) + 1;
     } while (layout[monsterY][monsterX].type != TileType::EMPTY);
     layout[monsterY][monsterX].type = TileType::MONSTER;
+
+    // Vytvoření nového monstra a uložení do layout a monster proměnné
+    delete monster; // Smažeme předchozí monstrum
+    monster = new Monster("Goblin", 80.0f, 30.0f, 10.0f); // Vytvoříme nové monstrum
     layout[monsterY][monsterX].monster = monster;
 }
 
