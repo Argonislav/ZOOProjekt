@@ -44,6 +44,22 @@ void Game::startNewGame() {
             break;
         } else if (action == 'i') {
             hero->getInventory()->printItems(); // Use getter to access inventory
+            char invAction;
+            std::cout << "press 'e' to equip item or 'r' to dequip item" << std::endl;
+            std::cin >> invAction;
+            if (invAction == 'e'){
+                unsigned long long int itemNumber;
+                std::cout << "enter item number" << std::endl;
+                std::cin >> itemNumber;
+                hero->inventory->items.at(itemNumber)->use();
+            } else if (invAction == 'd') {
+                unsigned long long int itemNumber;
+                std::cout << "enter item number: " << std::endl;
+                std::cin >> itemNumber;
+                hero->inventory->items.at(itemNumber)->use(); //tady naimplementovat dequip funkci
+            }
+
+
         } else if (action == 't') {
             // Display hero stats
             std::cout << "\nYour hero's stats:\n";

@@ -10,7 +10,6 @@
 
 class Inventory {
 private:
-    std::vector<Item*> items;
     int capacity;
     int currentItemCount;
 
@@ -20,6 +19,8 @@ public:
     bool removeItem(Item* item);
     void printItems();
     bool isFull();
+
+    std::vector<Item*> items;
 };
 
 

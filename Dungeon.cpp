@@ -66,9 +66,9 @@ void Dungeon::generateRoom() {
 
         itemPlaced[itemType] = true;
         switch (itemType) {
-            case 0: layout[itemY][itemX].item = new Sword("Rusty Sword", "An old, worn sword.", 5); break;
-            case 1: layout[itemY][itemX].item = new Armor("Leather Armor", "Basic protection.", 2); break;
-            case 2: layout[itemY][itemX].item = new Potion("Healing Potion", "Restores some health."); break;
+            case 0: layout[itemY][itemX].item = new Sword("Rusty Sword", "An old, worn sword.", 5, hero); break;
+            case 1: layout[itemY][itemX].item = new Armor("Leather Armor", "Basic protection.", 2, hero); break;
+            case 2: layout[itemY][itemX].item = new Potion("Healing Potion", "Restores some health.", hero); break;
         }
         layout[itemY][itemX].type = TileType::ITEM;
     }

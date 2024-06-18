@@ -21,6 +21,12 @@ public:
     float getHealth() const;
     float getAttack() const;
     float getDefense() const;
+
+    // Setter methods
+    void setName(std::string name);
+    void setHealth(float health);
+    void setAttack(float attack);
+    void setDefense(float defense);
 };
 
 #endif //UNTITLED_CHARACTER_H

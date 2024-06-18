@@ -14,8 +14,8 @@ public:
     Inventory* getInventory() const;
     void setInventory(Inventory* newInventory);
 
-private:
-    Inventory* inventory; // Inventory pointer
+    Inventory* inventory;
+    // Inventory pointer
 };
 
 #endif // HERO_H

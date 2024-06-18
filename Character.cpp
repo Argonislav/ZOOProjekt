@@ -43,3 +43,19 @@ float Character::getAttack() const {
 float Character::getDefense() const {
     return m_defense;
 }
+
+void Character::setName(std::string name){
+    m_name = name;
+}
+
+void Character::setHealth(float health){
+    m_health = health;
+}
+
+void Character::setAttack(float attack){
+    m_attack = attack;
+}
+
+void Character::setDefense(float defense){
+    m_defense = defense;
+}
