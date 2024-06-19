@@ -13,6 +13,7 @@ class Game {
 private:
     Hero *hero;
     Difficulty difficulty;
+
 public:
     Game();
     void showMenu() const;

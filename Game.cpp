@@ -154,22 +154,44 @@ void Game::endGame() const {
 
 void Game::run() {
     int choice;
+    bool playing = true; // Flag to indicate if the game is running
 
-    do {
+    while (playing) {
         showMenu();
         std::cin >> choice;
 
         switch (choice) {
             case 1:
                 startNewGame();
-                break;
+
+                // Logika po skončení hry (přesunuta mimo switch)
+                if (hero && !hero->isAlive()) {
+                    std::cout << "You have been defeated. Game over!" << std::endl;
+                }
+                else if (hero && hero->isAlive()) {
+                    std::cout << "Congratulations! You have won the game!" << std::endl;
+                }
+
+                char playAgain;
+                std::cout << "Do you want to play again? (y/n): ";
+                std::cin >> playAgain;
+                if (playAgain != 'y') {
+                    playing = false; // Nastavení příznaku pro ukončení smyčky
+                }
+
+                delete hero;
+                hero = nullptr;
+                break; // Start a new game
+
+
             case 2:
                 endGame();
-                return;
+                playing = false; // Nastavení příznaku pro ukončení smyčky
+                break;
             default:
                 std::cout << "Invalid choice. Please try again." << std::endl;
         }
-    } while (choice != 2);
+    }
 }
 
 void Game::setDifficulty(Difficulty diff) {

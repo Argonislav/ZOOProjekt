@@ -153,12 +153,12 @@ bool Dungeon::movePlayer(char direction) {
         if (layout[newY][newX].type == TileType::DOOR) {
             if (monster != nullptr && monster->isAlive()) {
                 std::cout << "You must defeat the monster in this room before you can proceed!" << std::endl;
-                return false; // Zůstaneme ve stejné místnosti
+                return false; // Stay in the same room
             } else {
                 roomCount++;
                 if (roomCount >= 3) {
                     std::cout << "Congratulations! You have successfully completed the dungeon!" << std::endl;
-                    return true;
+                    return true; // Indicate game has been won
                 }
                 std::cout << "Entering the next room!" << std::endl;
                 generateRoom();
@@ -175,62 +175,65 @@ bool Dungeon::movePlayer(char direction) {
                 std::cout << "You found a " << foundItem->getName() << "! " << foundItem->getDescription() << std::endl;
                 std::cout << "It has been added to your inventory." << std::endl;
                 layout[newY][newX].item = nullptr; // Remove item from the dungeon
-
-                // Reset the item's equipped status
                 foundItem->setEquipped(false);
             } else {
                 std::cout << "Your inventory is full. You cannot pick it up." << std::endl;
             }
 
-            // Nastavení pozice hráče na pozici předmětu
             layout[playerY][playerX].type = TileType::EMPTY;
             playerX = newX;
             playerY = newY;
             layout[playerY][playerX].type = TileType::PLAYER;
         } else if (layout[newY][newX].type == TileType::MONSTER) {
-            // Setkání s monstrem - nabídka možností
-            monster = static_cast<Monster*>(layout[newY][newX].monster);
-            std::cout << "You encountered a " << monster->getName() << "!" << std::endl;
+            Monster* encounteredMonster = layout[newY][newX].monster;
+            std::cout << "You encountered a " << encounteredMonster->getName() << "!" << std::endl;
             std::cout << "Monster Stats:" << std::endl;
-            std::cout << "  Health: " << monster->getHealth() << std::endl;
-            std::cout << "  Attack: " << monster->getAttack() << std::endl;
-            std::cout << "  Defense: " << monster->getDefense() << std::endl;
+            std::cout << "  Health: " << encounteredMonster->getHealth() << std::endl;
+            std::cout << "  Attack: " << encounteredMonster->getAttack() << std::endl;
+            std::cout << "  Defense: " << encounteredMonster->getDefense() << std::endl;
 
+            std::cout << "\nWhat do you want to do? (f)ight or (r)un: ";
             char choice;
-            do {
-                std::cout << "\nWhat do you want to do? (f)ight or (r)un: ";
-                std::cin >> choice;
-            } while (choice != 'f' && choice != 'r');
+            std::cin >> choice;
 
             if (choice == 'f') {
-                // Boj s monstrem
                 std::cout << "Prepare for battle!" << std::endl;
-                while (hero->isAlive() && monster->isAlive()) {
-                    // Hero attacks first
-                    hero->attack(monster);
-                    // Check if the monster is defeated
-                    if (!monster->isAlive()) {
-                        std::cout << "You defeated the monster!" << std::endl;
-                        layout[newY][newX].type = TileType::EMPTY;
-                        break;
+
+                bool playerStarts = rand() % 2 == 0;
+                bool playerTurn = playerStarts;
+                defenseTurnsLeft = 0;
+
+                while (hero->isAlive() && encounteredMonster->isAlive()) {
+                    if (playerTurn) {
+                        this->playerTurn(encounteredMonster);
+
+                        // Check if the player defended, and if so, let the monster attack twice
+                        if (defenseTurnsLeft > 0) {
+                            monsterTurn(encounteredMonster);
+                            if (encounteredMonster->isAlive()) {
+                                monsterTurn(encounteredMonster);
+                            }
+                        }
+                    } else {
+                        monsterTurn(encounteredMonster);
                     }
-                    // Monster attacks
-                    monster->attack(hero);
-                    // Check if the hero is defeated
-                    if (!hero->isAlive()) {
-                        std::cout << "You were defeated by the monster!" << std::endl;
-                        return true; // Game over
-                    }
+                    playerTurn = !playerTurn; // Switch turns
+                }
+
+                if (!encounteredMonster->isAlive()) {
+                    std::cout << "You defeated the monster!" << std::endl;
+                    layout[newY][newX].type = TileType::EMPTY;
+                    layout[newY][newX].monster = nullptr;
+                } else {
+                    std::cout << "You were defeated by the monster!" << std::endl;
+                    gameOver = true; // Set gameOver to true
+                    return false; // Do not end the game here
                 }
             } else if (choice == 'r') {
-                // Útěk - hráč se vrací na předchozí pozici
                 std::cout << "You run away!" << std::endl;
-                layout[newY][newX].type = TileType::MONSTER; // Obnovíme dlaždici monstra
-                layout[playerY][playerX].type = TileType::PLAYER; // Vrátíme hráče na původní pozici
-                return false; // Nepokračujeme v pohybu
+                return false; // Do not continue moving
             }
         } else {
-            // Ostatní pohyby - hráč se posune na nové místo
             layout[playerY][playerX].type = TileType::EMPTY;
             playerX = newX;
             playerY = newY;
@@ -241,6 +244,49 @@ bool Dungeon::movePlayer(char direction) {
     }
 
     return false;
+}
+
+void Dungeon::playerTurn(Monster* monster) {
+    std::cout << "Your turn!\n";
+    std::cout << "Choose action: (a)ttack, (d)efend, (h)eavy attack: ";
+    char choice;
+    std::cin >> choice;
+
+    switch (choice) {
+        case 'a':
+            hero->attack(monster);
+            defenseTurnsLeft = 0; // Reset defense after attacking
+            break;
+        case 'd':
+            defenseTurnsLeft = 2; // Enable defense for one turn
+            hero->addDefenseBonus(20); // Add defense bonus immediately
+            defenseTurnsLeft--;
+            std::cout << "You raise your defense!\n";
+            break;
+        case 'h':
+            if (defenseTurnsLeft > 0) {
+                std::cout << "You cannot use heavy attack while defending!\n";
+            } else {
+                float heavyAttackDamage = hero->getAttack() * 1.5f;
+                std::cout << "You used a heavy attack for " << heavyAttackDamage << " damage!\n";
+                monster->takeDamage(heavyAttackDamage);
+            }
+            break;
+        default:
+            std::cout << "Invalid choice!\n";
+    }
+
+    // Apply defense bonus and decrement counter
+    if (defenseTurnsLeft > 0) {
+        defenseTurnsLeft--;
+    } else {
+        hero->removeDefenseBonus(20);
+    }
+}
+
+void Dungeon::monsterTurn(Monster* monster) {
+    std::cout << "Monster's turn!\n";
+    monster->attack(hero);
 }
 
 void Dungeon::print() const {

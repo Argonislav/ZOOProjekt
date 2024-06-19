@@ -22,6 +22,8 @@ private:
     int playerX, playerY;
     int m_height, m_width;
     int roomCount;
+    int defenseTurnsLeft;
+    bool gameOver;
     Hero* hero; // Reference to the Hero
     Monster* monster; // Pointer to the monster
     Difficulty difficulty;
@@ -33,6 +35,8 @@ public:
     void print() const;
     bool playerOnItem();
     void removePlayerItem();
+    void monsterTurn(Monster* monster);
+    void playerTurn(Monster* monster);
     Item* getPlayerItem();
     TileType getPlayerTileType() const; // Add method declaration
 };
