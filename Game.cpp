@@ -1,13 +1,13 @@
-// game.cpp
 #include "Game.h"
 #include "Inventory.h"
 #include "Hero.h"
 #include "Monster.h"
 #include "Armor.h"
 #include "Sword.h"
+#include "Dungeon.h"
 #include <iostream>
 
-Game::Game() : hero(nullptr) {}
+Game::Game() : hero(nullptr), difficulty(Difficulty::Medium) {} // Default to Medium difficulty
 
 void Game::showMenu() const {
     std::cout << "======== Dungeon Game ========" << std::endl;
@@ -31,10 +31,30 @@ void Game::startNewGame() {
     Inventory inventory(10); // Create inventory with capacity of 10
     hero->setInventory(&inventory); // Associate inventory with the hero
 
-    // Create a monster
-    Monster* monster = new Monster("Goblin", 80.0f, 30.0f, 10.0f); // Adjust monster stats accordingly
+    // Výběr obtížnosti
+    int difficultyChoice;
+    std::cout << "Choose difficulty:\n1. Easy\n2. Medium\n3. Hard\nYour choice: ";
+    std::cin >> difficultyChoice;
 
-    Dungeon dungeon(10, 7, hero, monster); // Pass Hero and Monster to Dungeon
+    switch (difficultyChoice) {
+        case 1:
+            setDifficulty(Difficulty::Easy);
+            break;
+        case 2:
+            setDifficulty(Difficulty::Medium);
+            break;
+        case 3:
+            setDifficulty(Difficulty::Hard);
+            break;
+        default:
+            std::cout << "Invalid choice. Defaulting to Medium difficulty.\n";
+            setDifficulty(Difficulty::Medium);
+    }
+
+    // Create a monster (pass the chosen difficulty)
+    Monster* monster = new Monster("Goblin", 80.0f, 30.0f, 10.0f, difficulty); // Adjust monster stats accordingly
+
+    Dungeon dungeon(10, 7, hero, monster, difficulty); // Pass Hero and Monster to Dungeon
     dungeon.print();
 
     char action;
@@ -150,4 +170,8 @@ void Game::run() {
                 std::cout << "Invalid choice. Please try again." << std::endl;
         }
     } while (choice != 2);
+}
+
+void Game::setDifficulty(Difficulty diff) {
+    difficulty = diff;
 }

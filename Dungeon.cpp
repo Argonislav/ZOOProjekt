@@ -6,8 +6,8 @@
 #include "Inventory.h"
 #include <iostream>
 
-Dungeon::Dungeon(int width, int height, Hero* hero, Monster* monster)
-        : m_width(width), m_height(height), roomCount(0), hero(hero), monster(monster) {
+Dungeon::Dungeon(int width, int height, Hero* hero, Monster* monster, Difficulty difficulty)
+        : m_width(width), m_height(height), roomCount(0), hero(hero), monster(monster), difficulty(difficulty) {
     srand(time(0));
     generateRoom();
 }
@@ -42,8 +42,15 @@ void Dungeon::generateRoom() {
     } while (layout[playerY][playerX].type != TileType::EMPTY);
     layout[playerY][playerX].type = TileType::PLAYER;
 
-    // Place obstacles (avoiding doors and player)
-    int numObstacles = (m_width * m_height) / 15;
+    // Place obstacles (adjust number based on difficulty)
+    int numObstacles;
+    if (difficulty == Difficulty::Easy) {
+        numObstacles = (m_width * m_height) / 20; // Fewer obstacles
+    } else if (difficulty == Difficulty::Medium) {
+        numObstacles = (m_width * m_height) / 15;
+    } else {
+        numObstacles = (m_width * m_height) / 10; // More obstacles
+    }
     for (int i = 0; i < numObstacles; ++i) {
         int obstacleX, obstacleY;
         do {
@@ -53,9 +60,16 @@ void Dungeon::generateRoom() {
         layout[obstacleY][obstacleX].type = TileType::OBSTACLE;
     }
 
-    // Place items (one of each type, avoiding other objects)
+    // Place items (adjust number and types based on difficulty)
     bool itemPlaced[3] = {false}; // Track if each item type has been placed
-    int numItems = rand() % 3 + 1; // Place 1-3 items
+    int numItems;
+    if (difficulty == Difficulty::Easy) {
+        numItems = rand() % 3 + 2; // Place 2-4 items
+    } else if (difficulty == Difficulty::Medium) {
+        numItems = rand() % 3 + 1; // Place 1-3 items
+    } else {
+        numItems = rand() % 2; // Place 0-1 items
+    }
     for (int i = 0; i < numItems; ++i) {
         int itemX, itemY, itemType;
         do {
@@ -105,8 +119,15 @@ void Dungeon::generateRoom() {
         monsterY = rand() % (m_height - 2) + 1;
     } while (layout[monsterY][monsterX].type != TileType::EMPTY);
 
-    delete monster; // Odstranění předchozího monstra
-    monster = new Monster("Goblin", 80.0f, 30.0f, 10.0f);
+    delete monster; // Delete the previous monster
+    if (difficulty == Difficulty::Easy) {
+        monster = new Monster("Weak Goblin", 50.0f, 10.0f, 5.0f, difficulty);
+    } else if (difficulty == Difficulty::Medium) {
+        monster = new Monster("Goblin", 80.0f, 20.0f, 10.0f, difficulty);
+    } else {
+        monster = new Monster("Strong Goblin", 120.0f, 30.0f, 15.0f, difficulty);
+    }
+
     layout[monsterY][monsterX].monster = monster;
     layout[monsterY][monsterX].type = TileType::MONSTER;
 }

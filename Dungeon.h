@@ -6,9 +6,7 @@
 #include <cstdlib>
 #include <ctime>
 #include "Item.h"
-#include "Inventory.h"
-#include "Hero.h"  // Include the Hero header
-#include "Monster.h" // Include the Monster header
+#include "Monster.h"
 
 enum class TileType { EMPTY, WALL, DOOR, PLAYER, MONSTER, OBSTACLE, ITEM }; // Add MONSTER tile type
 
@@ -26,9 +24,10 @@ private:
     int roomCount;
     Hero* hero; // Reference to the Hero
     Monster* monster; // Pointer to the monster
+    Difficulty difficulty;
 
 public:
-    Dungeon(int width, int height, Hero* hero, Monster* monster); // Modify constructor to accept Monster
+    Dungeon(int width, int height, Hero* hero, Monster* monster, Difficulty difficulty);
     void generateRoom();
     bool movePlayer(char direction);
     void print() const;

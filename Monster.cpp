@@ -5,8 +5,8 @@
 #include <iostream>
 #include "Monster.h"
 
-Monster::Monster(std::string name, float health, float attack, float defense)
-        : Character(name, health, attack, defense) {}
+Monster::Monster(std::string name, float health, float attack, float defense, Difficulty difficulty)
+        : Character(name, health, attack, defense), difficulty(difficulty) {}
 
 void Monster::printInfo(){
     std::cout << "name: " << m_name << "health: " << m_health << std::endl;
