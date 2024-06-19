@@ -14,8 +14,13 @@ public:
     Inventory* getInventory() const;
     void setInventory(Inventory* newInventory);
 
+    // Methods for modifying bonuses
+    void addAttackBonus(int bonus);
+    void removeAttackBonus(int bonus);
+    void addDefenseBonus(int bonus);
+    void removeDefenseBonus(int bonus);
+
     Inventory* inventory;
-    // Inventory pointer
 };
 
 #endif // HERO_H

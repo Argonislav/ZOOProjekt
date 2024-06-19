@@ -19,7 +19,7 @@ public:
     bool removeItem(Item* item);
     void printItems();
     bool isFull();
-
+    Item* getEquippedItem(ItemType type);
     std::vector<Item*> items;
 };
 

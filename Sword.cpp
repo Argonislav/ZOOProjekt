@@ -14,6 +14,13 @@ void Sword::setDamage(int damage) {
 }
 
 void Sword::use() {
-    std::cout << "You equip the " << getName() << " and gain " << m_damage << " damage!" << std::endl;
-    m_hero->setAttack(m_hero->getAttack() + getDamage());
+    if (!getEquipped()) {
+        std::cout << "You equip the " << getName() << " and gain " << m_damage << " damage!" << std::endl;
+        m_hero->addAttackBonus(getDamage());
+        setEquipped(true);
+    } else {
+        std::cout << "You unequip the " << getName() << " and lose " << m_damage << " damage!" << std::endl;
+        m_hero->removeAttackBonus(getDamage());
+        setEquipped(false);
+    }
 }

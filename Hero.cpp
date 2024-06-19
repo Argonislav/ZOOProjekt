@@ -1,4 +1,4 @@
-#include "hero.h"
+#include "Hero.h"
 
 // Constructor
 Hero::Hero(std::string name, float health, float attack, float defense)
@@ -12,4 +12,21 @@ Inventory* Hero::getInventory() const {
 // Setter for inventory
 void Hero::setInventory(Inventory* newInventory) {
     inventory = newInventory;
+}
+
+// Methods for modifying bonuses
+void Hero::addAttackBonus(int bonus) {
+    m_attack += bonus;
+}
+
+void Hero::removeAttackBonus(int bonus) {
+    m_attack -= bonus;
+}
+
+void Hero::addDefenseBonus(int bonus) {
+    m_defense += bonus;
+}
+
+void Hero::removeDefenseBonus(int bonus) {
+    m_defense -= bonus;
 }

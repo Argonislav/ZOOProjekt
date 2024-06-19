@@ -55,3 +55,19 @@ int Item::getDefenseBonus(){
 void Item::setDefenseBonus(int defenseBonus) {
     m_defenseBonus = defenseBonus;
 }
+
+bool Item::getEquipped() {
+    return equipped;
+}
+
+void Item::setEquipped(bool equipped) {
+    this->equipped = equipped;
+}
+
+PotionType Item::getPotionType() {
+    return potionType;
+}
+
+void Item::setPotionType(PotionType type) {
+    potionType = type;
+}

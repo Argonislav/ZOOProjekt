@@ -3,6 +3,8 @@
 #include "Inventory.h"
 #include "Hero.h"
 #include "Monster.h"
+#include "Armor.h"
+#include "Sword.h"
 #include <iostream>
 
 Game::Game() : hero(nullptr) {}
@@ -43,23 +45,49 @@ void Game::startNewGame() {
         if (action == 'q') {
             break;
         } else if (action == 'i') {
-            hero->getInventory()->printItems(); // Use getter to access inventory
+            // Správa inventáře
+            hero->getInventory()->printItems();
             char invAction;
-            std::cout << "press 'e' to equip item or 'r' to dequip item" << std::endl;
+            std::cout << "Press 'e' to equip item, 'u' to use item, or 'r' to unequip item: ";
             std::cin >> invAction;
-            if (invAction == 'e'){
+
+            if (invAction == 'e' || invAction == 'u') {
                 unsigned long long int itemNumber;
-                std::cout << "enter item number" << std::endl;
+                std::cout << "Enter item number: ";
                 std::cin >> itemNumber;
-                hero->inventory->items.at(itemNumber)->use();
-            } else if (invAction == 'd') {
+
+                if (itemNumber < hero->inventory->items.size()) {
+                    Item* selectedItem = hero->inventory->items[itemNumber];
+
+                    if (invAction == 'e' && selectedItem->getType() == ItemType::Equipable) {
+                        selectedItem->use(); // Vybavení nebo odvybavení předmětu
+                    } else if (invAction == 'u' && selectedItem->getType() == ItemType::Consumable) {
+                        selectedItem->use(); // Použití spotřebního předmětu
+                        hero->getInventory()->removeItem(selectedItem);
+                        delete selectedItem;
+                    } else {
+                        std::cout << "Invalid action for this item type.\n";
+                    }
+                } else {
+                    std::cout << "Invalid item number.\n";
+                }
+            } else if (invAction == 'r') {
                 unsigned long long int itemNumber;
-                std::cout << "enter item number: " << std::endl;
+                std::cout << "Enter item number: ";
                 std::cin >> itemNumber;
-                hero->inventory->items.at(itemNumber)->use(); //tady naimplementovat dequip funkci
+
+                if (itemNumber < hero->inventory->items.size()) {
+                    Item* selectedItem = hero->inventory->items[itemNumber];
+
+                    if (selectedItem->getType() == ItemType::Equipable && selectedItem->getEquipped()) {
+                        selectedItem->use(); // Odvybavení předmětu
+                    } else {
+                        std::cout << "This item is not equipped or is not equipable.\n";
+                    }
+                } else {
+                    std::cout << "Invalid item number.\n";
+                }
             }
-
-
         } else if (action == 't') {
             // Display hero stats
             std::cout << "\nYour hero's stats:\n";
@@ -67,7 +95,7 @@ void Game::startNewGame() {
             std::cout << "Attack: " << hero->getAttack() << std::endl;
             std::cout << "Defense: " << hero->getDefense() << std::endl;
         } else {
-            if (dungeon.movePlayer(action)) { // No need to pass inventory
+            if (dungeon.movePlayer(action)) {
                 break; // Game over (player won or lost)
             }
 
@@ -79,7 +107,6 @@ void Game::startNewGame() {
                     std::cout << "You found a " << foundItem->getName() << "! " << foundItem->getDescription() << std::endl;
                     std::cout << "It has been added to your inventory." << std::endl;
                 } else {
-                    std::cout << "You found a " << foundItem->getName() << "! " << foundItem->getDescription() << std::endl;
                     std::cout << "Your inventory is full. You cannot pick it up." << std::endl;
                 }
 

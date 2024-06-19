@@ -14,7 +14,13 @@ void Armor::setArmorRating(int armorRating) {
 }
 
 void Armor::use() {
-    std::cout << "You equip the " << getName() << " and gain " << m_armorRating << " armor!" << std::endl;
-        m_hero->setDefense(m_hero->getDefense() + getArmorRating());
-
+    if (!getEquipped()) {
+        std::cout << "You equip the " << getName() << " and gain " << m_armorRating << " armor!" << std::endl;
+        m_hero->addDefenseBonus(getArmorRating());
+        setEquipped(true);
+    } else {
+        std::cout << "You unequip the " << getName() << " and lose " << m_armorRating << " armor!" << std::endl;
+        m_hero->removeDefenseBonus(getArmorRating());
+        setEquipped(false);
+    }
 }

@@ -66,9 +66,34 @@ void Dungeon::generateRoom() {
 
         itemPlaced[itemType] = true;
         switch (itemType) {
-            case 0: layout[itemY][itemX].item = new Sword("Rusty Sword", "An old, worn sword.", 5, hero); break;
-            case 1: layout[itemY][itemX].item = new Armor("Leather Armor", "Basic protection.", 2, hero); break;
-            case 2: layout[itemY][itemX].item = new Potion("Healing Potion", "Restores some health.", hero); break;
+            case 0:
+                layout[itemY][itemX].item = new Sword("Rusty Sword", "An old, worn sword.", 5, hero);
+                break;
+            case 1:
+                layout[itemY][itemX].item = new Armor("Leather Armor", "Basic protection.", 2, hero);
+                break;
+            case 2: {
+                // Náhodný výběr typu lektvaru
+                PotionType potionType = static_cast<PotionType>(rand() % 3); // 0: Health, 1: Attack, 2: Defense
+                std::string potionName, potionDescription;
+
+                switch (potionType) {
+                    case PotionType::Health:
+                        potionName = "Healing Potion";
+                        potionDescription = "Restores some health.";
+                        break;
+                    case PotionType::Attack:
+                        potionName = "Attack Potion";
+                        potionDescription = "Increases attack power.";
+                        break;
+                    case PotionType::Defense:
+                        potionName = "Defense Potion";
+                        potionDescription = "Increases defense power.";
+                        break;
+                }
+                layout[itemY][itemX].item = new Potion(potionName, potionDescription, hero, potionType);
+                break;
+            }
         }
         layout[itemY][itemX].type = TileType::ITEM;
     }
@@ -80,7 +105,7 @@ void Dungeon::generateRoom() {
         monsterY = rand() % (m_height - 2) + 1;
     } while (layout[monsterY][monsterX].type != TileType::EMPTY);
 
-    delete monster; // Delete the previous monster if it exists
+    delete monster; // Odstranění předchozího monstra
     monster = new Monster("Goblin", 80.0f, 30.0f, 10.0f);
     layout[monsterY][monsterX].monster = monster;
     layout[monsterY][monsterX].type = TileType::MONSTER;
@@ -101,32 +126,14 @@ bool Dungeon::movePlayer(char direction) {
     int newX = playerX + dx;
     int newY = playerY + dy;
 
-    // Opravená kontrola kolize
     if (newX >= 0 && newX < m_width && newY >= 0 && newY < m_height &&
         layout[newY][newX].type != TileType::WALL && layout[newY][newX].type != TileType::OBSTACLE) {
 
         if (layout[newY][newX].type == TileType::DOOR) {
-            // Kontrola, zda je monstrum poraženo
-            bool monsterAlive = false;
-            for (int y = 0; y < m_height; ++y) {
-                for (int x = 0; x < m_width; ++x) {
-                    if (layout[y][x].type == TileType::MONSTER) {
-                        monsterAlive = true;
-                        break;
-                    }
-                }
-            }
-
-            if (monsterAlive) {
+            if (monster != nullptr && monster->isAlive()) {
                 std::cout << "You must defeat the monster in this room before you can proceed!" << std::endl;
-
-                // Vrácení hráče na předchozí pozici
-                layout[newY][newX].type = TileType::DOOR; // Obnovíme dlaždici dveří
-                layout[playerY][playerX].type = TileType::PLAYER; // Vrátíme hráče zpět
-
                 return false; // Zůstaneme ve stejné místnosti
             } else {
-                // Přejdeme do další místnosti
                 roomCount++;
                 if (roomCount >= 3) {
                     std::cout << "Congratulations! You have successfully completed the dungeon!" << std::endl;
@@ -135,11 +142,10 @@ bool Dungeon::movePlayer(char direction) {
                 std::cout << "Entering the next room!" << std::endl;
                 generateRoom();
 
-                // Nastavení pozice hráče na pozici dveří v nové místnosti
                 if (playerX == 0) {
-                    playerX = m_width - 1; // Hráč přišel zleva, dveře jsou vpravo
+                    playerX = m_width - 1;
                 } else {
-                    playerX = 0; // Hráč přišel zprava, dveře jsou vlevo
+                    playerX = 0;
                 }
             }
         } else if (layout[newY][newX].type == TileType::ITEM) {
@@ -148,8 +154,10 @@ bool Dungeon::movePlayer(char direction) {
                 std::cout << "You found a " << foundItem->getName() << "! " << foundItem->getDescription() << std::endl;
                 std::cout << "It has been added to your inventory." << std::endl;
                 layout[newY][newX].item = nullptr; // Remove item from the dungeon
+
+                // Reset the item's equipped status
+                foundItem->setEquipped(false);
             } else {
-                std::cout << "You found a " << foundItem->getName() << "! " << foundItem->getDescription() << std::endl;
                 std::cout << "Your inventory is full. You cannot pick it up." << std::endl;
             }
 

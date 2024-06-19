@@ -7,8 +7,9 @@
 class Potion : public Item {
 private:
     Hero* m_hero;
+    PotionType m_potionType; // Přidán atribut pro typ lektvaru
 public:
-    Potion(std::string name, std::string description, Hero* hero);
+    Potion(std::string name, std::string description, Hero* hero, PotionType potionType);
 
     void use() override;
 };
