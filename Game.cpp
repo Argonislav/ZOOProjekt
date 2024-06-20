@@ -68,7 +68,7 @@ void Game::startNewGame() {
             // Správa inventáře
             hero->getInventory()->printItems();
             char invAction;
-            std::cout << "Press 'e' to equip item, 'u' to use item, or 'r' to unequip item: ";
+            std::cout << "Press 'e' to equip/dequip item, 'u' to use item, or 'r' to remove item: ";
             std::cin >> invAction;
 
             if (invAction == 'e' || invAction == 'u') {
@@ -98,12 +98,8 @@ void Game::startNewGame() {
 
                 if (itemNumber < hero->inventory->items.size()) {
                     Item* selectedItem = hero->inventory->items[itemNumber];
-
-                    if (selectedItem->getType() == ItemType::Equipable && selectedItem->getEquipped()) {
-                        selectedItem->use(); // Odvybavení předmětu
-                    } else {
-                        std::cout << "This item is not equipped or is not equipable.\n";
-                    }
+                    hero->getInventory()->removeItem(selectedItem);
+                    std::cout << "you have removed item" << std::endl;
                 } else {
                     std::cout << "Invalid item number.\n";
                 }
