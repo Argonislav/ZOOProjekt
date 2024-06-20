@@ -68,7 +68,7 @@ void Game::startNewGame() {
             // Správa inventáře
             hero->getInventory()->printItems();
             char invAction;
-            std::cout << "Press 'e' to equip/dequip item, 'u' to use item, or 'r' to remove item: ";
+            std::cout << "Press 'e' to equip/dequip item, 'u' to use item, 'r' to remove item or 'b' to go back: ";
             std::cin >> invAction;
 
             if (invAction == 'e' || invAction == 'u') {
@@ -103,7 +103,10 @@ void Game::startNewGame() {
                 } else {
                     std::cout << "Invalid item number.\n";
                 }
+            } else if (invAction == 'b'){
+                continue;
             }
+
         } else if (action == 't') {
             // Display hero stats
             std::cout << "\nYour hero's stats:\n";
