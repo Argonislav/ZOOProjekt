@@ -35,13 +35,6 @@ void Dungeon::generateRoom() {
         layout[exitY][exitSide * (m_width - 1)].type = TileType::DOOR;
     }
 
-    // Place the player (ensuring it's not on a door)
-    do {
-        playerX = rand() % (m_width - 2) + 1;
-        playerY = rand() % (m_height - 2) + 1;
-    } while (layout[playerY][playerX].type != TileType::EMPTY);
-    layout[playerY][playerX].type = TileType::PLAYER;
-
     // Place obstacles (adjust number based on difficulty)
     int numObstacles;
     if (difficulty == Difficulty::Easy) {
@@ -88,7 +81,7 @@ void Dungeon::generateRoom() {
                 break;
             case 2: {
                 // Náhodný výběr typu lektvaru
-                PotionType potionType = static_cast<PotionType>(rand() % 3); // 0: Health, 1: Attack, 2: Defense
+                auto potionType = static_cast<PotionType>(rand() % 3); // 0: Health, 1: Attack, 2: Defense
                 std::string potionName, potionDescription;
 
                 switch (potionType) {
@@ -111,6 +104,13 @@ void Dungeon::generateRoom() {
         }
         layout[itemY][itemX].type = TileType::ITEM;
     }
+
+    // Place the player (ensuring it's not on a door)
+    do {
+        playerX = rand() % (m_width - 2) + 1;
+        playerY = rand() % (m_height - 2) + 1;
+    } while (layout[playerY][playerX].type != TileType::EMPTY);
+    layout[playerY][playerX].type = TileType::PLAYER;
 
     // Place the monster (avoiding other objects)
     int monsterX, monsterY;
@@ -212,6 +212,7 @@ bool Dungeon::movePlayer(char direction) {
                             monsterTurn(encounteredMonster);
                             if (encounteredMonster->isAlive()) {
                                 monsterTurn(encounteredMonster);
+                                hero->removeDefenseBonus(20);
                             }
                         }
                     } else {
@@ -279,8 +280,6 @@ void Dungeon::playerTurn(Monster* monster) {
     // Apply defense bonus and decrement counter
     if (defenseTurnsLeft > 0) {
         defenseTurnsLeft--;
-    } else {
-        hero->removeDefenseBonus(20);
     }
 }
 

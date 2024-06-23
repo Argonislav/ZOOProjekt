@@ -19,7 +19,7 @@ void Character::takeDamage(float damage) {
 }
 
 void Character::attack(Character *target) {
-    std::cout << m_name << " attacks " << target->m_name << " for " << m_attack << " damage." << std::endl;
+    std::cout << m_name << " attacks " << target->m_name << " for " << m_attack - target->m_defense<< " damage." << std::endl;
     target->takeDamage(m_attack);
 }
 
