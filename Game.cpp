@@ -7,7 +7,7 @@
 #include "Dungeon.h"
 #include <iostream>
 
-Game::Game() : hero(nullptr), difficulty(Difficulty::Medium) {} // Default to Medium difficulty
+Game::Game() : hero(nullptr), difficulty(Difficulty::Easy) {} // Default to Easy difficulty
 
 void Game::showMenu() const {
     std::cout << "======== Dungeon Game ========" << std::endl;

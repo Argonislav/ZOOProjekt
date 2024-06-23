@@ -293,7 +293,7 @@ void Dungeon::print() const {
     for (int y = 0; y < m_height; ++y) {
         for (int x = 0; x < m_width; ++x) {
             if (x == playerX && y == playerY) {
-                std::cout << 'P'; // Player
+                std::cout << 'H'; // Player
             } else {
                 switch (layout[y][x].type) {
                     case TileType::EMPTY: std::cout << '.'; break; // Empty space
@@ -307,7 +307,7 @@ void Dungeon::print() const {
                             } else if (dynamic_cast<Armor*>(layout[y][x].item)) {
                                 std::cout << 'A'; // Armor
                             } else if (dynamic_cast<Potion*>(layout[y][x].item)) {
-                                std::cout << 'H'; // Health Potion
+                                std::cout << 'P'; //  Potion
                             }
                         } else {
                             std::cout << '?'; // Unknown item (shouldn't happen)
