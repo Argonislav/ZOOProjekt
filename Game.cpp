@@ -63,7 +63,7 @@ void Game::startNewGame() {
         std::cin >> action;
 
         if (action == 'q') {
-            break;
+            endGame();
         } else if (action == 'i') {
             // Správa inventáře
             hero->getInventory()->printItems();

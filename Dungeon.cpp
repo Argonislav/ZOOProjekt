@@ -264,11 +264,6 @@ void Dungeon::playerTurn(Monster* monster) {
             defenseTurnsLeft = 2; // Enable defense for one turn
             hero->addDefenseBonus(10); // Add defense bonus immediately
             std::cout << "You raise your defense!\n";
-
-            std::cout << "\nYour hero's stats:\n";
-            std::cout << "Health: " << hero->getHealth() << std::endl;
-            std::cout << "Attack: " << hero->getAttack() << std::endl;
-            std::cout << "Defense: " << hero->getDefense() << std::endl;
             break;
         case 'h':
             if (defenseTurnsLeft > 0) {
