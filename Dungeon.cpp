@@ -201,19 +201,22 @@ bool Dungeon::movePlayer(char direction) {
 
                 bool playerStarts = rand() % 2 == 0;
                 bool playerTurn = playerStarts;
-                defenseTurnsLeft = 0;
+                defenseTurnsLeft = -1;
 
                 while (hero->isAlive() && encounteredMonster->isAlive()) {
                     if (playerTurn) {
                         this->playerTurn(encounteredMonster);
 
                         // Check if the player defended, and if so, let the monster attack twice
-                        if (defenseTurnsLeft > 0) {
-                            monsterTurn(encounteredMonster);
+                        while (defenseTurnsLeft > 0) {
                             if (encounteredMonster->isAlive()) {
                                 monsterTurn(encounteredMonster);
-                                hero->removeDefenseBonus(20);
+                                defenseTurnsLeft--;
                             }
+                        }
+                        if (defenseTurnsLeft == 0) {
+                            hero->removeDefenseBonus(10); // Remove defense bonus after two turns
+                            defenseTurnsLeft = -1;
                         }
                     } else {
                         monsterTurn(encounteredMonster);
@@ -256,13 +259,16 @@ void Dungeon::playerTurn(Monster* monster) {
     switch (choice) {
         case 'a':
             hero->attack(monster);
-            defenseTurnsLeft = 0; // Reset defense after attacking
             break;
         case 'd':
             defenseTurnsLeft = 2; // Enable defense for one turn
-            hero->addDefenseBonus(20); // Add defense bonus immediately
-            defenseTurnsLeft--;
+            hero->addDefenseBonus(10); // Add defense bonus immediately
             std::cout << "You raise your defense!\n";
+
+            std::cout << "\nYour hero's stats:\n";
+            std::cout << "Health: " << hero->getHealth() << std::endl;
+            std::cout << "Attack: " << hero->getAttack() << std::endl;
+            std::cout << "Defense: " << hero->getDefense() << std::endl;
             break;
         case 'h':
             if (defenseTurnsLeft > 0) {
@@ -276,12 +282,7 @@ void Dungeon::playerTurn(Monster* monster) {
         default:
             std::cout << "Invalid choice!\n";
     }
-
-    // Apply defense bonus and decrement counter
-    if (defenseTurnsLeft > 0) {
-        defenseTurnsLeft--;
     }
-}
 
 void Dungeon::monsterTurn(Monster* monster) {
     std::cout << "Monster's turn!\n";
